@@ -9,120 +9,116 @@ typedef int ElemType;
 
 using namespace std;
 
-class SqStack {
-private:
-	ElemType *base;
-	ElemType *top;
-	int stacksize;
-public:
-	SqStack() {}
-
-	void InitStack() {
-		base = new ElemType[MAXSIZE];
-		if (!base) cout << "OVERFLOW" << endl;
-		top = base;
-		stacksize = MAXSIZE;
-	}
-
-	void Push(ElemType e) {
-		if (top - base != MAXSIZE) 
-			*top++ = e;
-	}
-
-	void Pop(ElemType &e) {
-		if (top == base)
-			cout << "ERROR" << endl;
-		e = *--top;
-	}
-
-	ElemType GetTop() {
-		if (top == base)
-			return ERROR;
-		return *(top - 1);
-	}
-
-	void Print() {
-		ElemType *tmp = top;
-		while (tmp != base)
-		{
-			cout << *(tmp - 1) << endl;
-			tmp--;
-		}
-	}
-};
-
-typedef struct StackNode {
-
+typedef struct LNode {
 	ElemType data;
-	StackNode* next;
-}StackNode, *LinkStack;
+	struct LNode *next;
+}LNode, *LinkList;
 
-Status InitStack(LinkStack &S) {
-	S = nullptr;
+Status InitList(LinkList &L) {
+	L = new LNode;
+	L->next = nullptr;
 	return OK;
 }
 
-Status Push(LinkStack &S, ElemType e) {
-	StackNode* newNode = new StackNode;
-	newNode->data = e;
-	newNode->next = S;
-	S = newNode;
+Status GetElem(LinkList L, int i, ElemType &e) {
+	LNode *p = L->next;
+	int j = 1;
+	while (p && j < i)
+	{
+		p = p->next;
+		++j;
+	}
+	if (!p || j > i)	return ERROR;
+	e = p->data;
 	return OK;
 }
 
-Status Pop(LinkStack &S, ElemType &e) {
-	if(!S) return ERROR;
-	e = S->data;
-	StackNode* p;
-	p = S;
-	S = S->next;
-	delete p;
+LNode *LocateElem(LinkList L, ElemType e) {
+	LNode *p = L->next;
+	while (p && p->data != e)
+	{
+		p = p->next;
+	}
+	return p;
+}
+
+Status ListInsert(LinkList &L, int i, ElemType e) {
+	LNode *p = L;
+	int j = 0;
+	while (p && j < i - 1)
+	{
+		p = p->next;
+		++j;
+	}
+	if (!p || j > i - 1)	return ERROR;
+	LNode *s = new LNode;
+	s->data = e;
+	s->next = p->next;
+	p->next = s;
 	return OK;
 }
 
-ElemType GetTop(LinkStack S) {
-	if(S) return S->data;
+Status ListDelete(LinkList &L, int i) {
+	LNode *p = L;
+	int j = 0;
+	while (p && j < i - 1)
+	{
+		p = p->next;
+		++j;
+	}
+	LNode *q = p->next;
+	p->next = q->next;
+	delete q;
+	return OK;
 }
 
-void PrintStack(LinkStack S) {
-	StackNode *p = S;
+void CreateList_H(LinkList &L, int n) {
+	L = new LNode;
+	L->next = nullptr;
+	for (int i = 0; i < n; ++i) {
+		LNode *p = new LNode;
+		cin >> p->data;
+		p->next = L->next;
+		L->next = p;
+	}
+}
+
+void CreateList_T(LinkList &L, int n) {
+	L = new LNode;
+	L->next = nullptr;
+	LNode *r = L;
+	for (int i = 0; i < n; ++i) {
+		LNode *p = new LNode;
+		cin >> p->data;
+		p->next = r->next;
+		r->next = p;
+		r = p;
+	}
+}
+
+void PrintList(LinkList L) {
+	LNode *p = L->next;
 	while (p)
 	{
-		cout << p->data <<"  ";
+		cout << p->data << "  ";
 		p = p->next;
 	}
 	cout << endl;
-	
 }
 
 int main(int argc, char *argv[])
 {
-	#if 0
-	int e;
-	SqStack S;
-	S.InitStack();
-	S.Push(5);	
-	S.Push(4);
-	S.Push(3);
-	S.Push(2);
-	S.Push(1);
-	S.Print();
-	S.Pop(e);
-	S.Pop(e);
-	cout << e << endl;
-	cout << S.GetTop() << endl;
-	#endif
+	int val;
+	LinkList L;
+	InitList(L);
+	CreateList_H(L, 5);
+	PrintList(L);
+	GetElem(L, 2, val);
+	cout << val << endl;
+	ListInsert(L, 2, 35);
+	PrintList(L);
+	ListDelete(L, 4);
+	PrintList(L);
 
-	#if 0
-	LinkStack S;
-	InitStack(S);
-	for (int i = 0; i < 6; i++) {
-		Push(S, i);
-	}
-	PrintStack(S);
-	int a;
-	Pop(S, a);
-	PrintStack(S);
-	cout << GetTop(S) << endl;
-	#endif
+	return 0;
 }
